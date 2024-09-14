@@ -32,15 +32,12 @@ export const addEvent = async (req, res, next) => {
       return res.status(500).json({ message: 'Error in uploading Poster: ', err });
     } else {
       // create new event
-      const { eventName, eventCategory, eventDesc, eventPrice, eventLang, noOfAttendees, performerName, hostName, hostWhatsapp, sponserName, eventLink, location, eventAddress, geoCoordinates, startDate, endDate, endDate, endTime } = JSON.parse(req.body.eventData);
+      const { eventName, eventCategory, eventDesc, eventPrice, eventLang, noOfAttendees, performerName, hostName, hostWhatsapp, sponserName, eventLink, location, eventAddress, geoCoordinates, startDate, endDate } = JSON.parse(req.body.eventData);
 
       const errors = validateEventInputs(JSON.parse(req.body.eventData));
       if (errors) {
         return res.status(422).json({ message: 'Invalid inputs', errors });
       }
-
-      const combinedStartDate = new Date(`${startDate}T${startTime}Z`);
-      const combinedEndDate = new Date(`${endDate}T${endTime}Z`);
 
       const filesWithIndex = req.files.map((file, index) => ({ file, index }));
       filesWithIndex.sort((a, b) => a.index - b.index);
@@ -62,8 +59,8 @@ export const addEvent = async (req, res, next) => {
             type: 'Point',
             coordinates: geoCoordinates,
           },
-          startDate: combinedStartDate,
-          endDate: combinedEndDate,
+          startDate: new Date(`${startDate}Z`),
+          endDate: new Date(`${endDate}Z`),
           eventPosters: eventPosters,
           user: adminId,
         });
@@ -111,15 +108,12 @@ export const updateEvent = async (req, res, next) => {
       return res.status(500).json({ message: 'Error in uploading Poster: ', err });
     } else {
       // update event
-      const { eventName, eventCategory, eventDesc, eventPrice, eventLang, noOfAttendees, performerName, hostName, hostWhatsapp, sponserName, eventLink, location, eventAddress, geoCoordinates, startDate, endDate, endDate, endTime } = JSON.parse(req.body.eventData);
+      const { eventName, eventCategory, eventDesc, eventPrice, eventLang, noOfAttendees, performerName, hostName, hostWhatsapp, sponserName, eventLink, location, eventAddress, geoCoordinates, startDate, endDate } = JSON.parse(req.body.eventData);
 
       const errors = validateEventInputs(JSON.parse(req.body.eventData));
       if (errors) {
         return res.status(422).json({ message: 'Invalid inputs', errors });
       }
-
-      const combinedStartDate = new Date(`${startDate}T${startTime}Z`);
-      const combinedEndDate = new Date(`${endDate}T${endTime}Z`);
 
       if (req.files && req.files.length > 0) {
         const filesWithIndex = req.files.map((file, index) => ({ file, index }));
@@ -156,8 +150,8 @@ export const updateEvent = async (req, res, next) => {
           coordinates: geoCoordinates,
         };
       }
-      event.startDate = combinedStartDate;
-      event.endDate = combinedEndDate;
+      event.startDate = new Date(`${startDate}Z`);
+      event.endDate = new Date(`${endDate}Z`);
 
       try {
         await event.save();
